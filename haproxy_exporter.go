@@ -11,6 +11,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"net/url"
+	"crypto/tls"
 	"os"
 	"sort"
 	"strconv"
@@ -248,8 +249,11 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 }
 
 func fetchHTTP(uri string, timeout time.Duration) func() (io.ReadCloser, error) {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 	client := http.Client{
-		Timeout: timeout,
+		Timeout: timeout,Transport: tr,
 	}
 
 	return func() (io.ReadCloser, error) {
